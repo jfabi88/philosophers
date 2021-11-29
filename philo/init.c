@@ -18,7 +18,7 @@ static int	ft_init_mutex(t_state *state)
 
 	pthread_mutex_init(state->print, NULL);
 	pthread_mutex_init(state->philo_death, NULL);
-	pthread_mutex_init(&state->exit, NULL);
+	pthread_mutex_init(state->exit, NULL);
 	pthread_mutex_lock(state->philo_death);
 	i = 0;
 	while (i < state->num_philos)
@@ -127,8 +127,9 @@ int	ft_init(t_state *state, int argc, char *argv[])
 	state->philo_death = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
 	if (state->philo_death == NULL)
 		return (1);
-	ft_init_philos(state);
-	if (ft_init_mutex(state) == 1)
+	state->exit = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+	if (state->exit == NULL)
 		return (1);
-	return (0);
+	ft_init_philos(state);
+	return (ft_init_mutex(state));
 }

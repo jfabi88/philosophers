@@ -28,29 +28,29 @@ void	ft_print_status(int time, t_philo *philo, char *s)
 
 static void	*ft_cheack_death(void *arg)
 {
-	t_state	*state;
 	t_philo	*pil;
 	int		i;
 
-	state = (t_state *)arg;
 	while (1)
 	{
 		i = 0;
-		pthread_mutex_lock(&state->exit);
-		while (state->philos[i])
+		pthread_mutex_lock(((t_state *)arg)->exit);
+		while (((t_state *)arg)->philos[i])
 		{
-			pil = state->philos[i];
+			pil = ((t_state *)arg)->philos[i];
 			if (pil->bias != -1)
 			{
-				if (!pil->is_eating && ft_get_time() > pil->bias)
+				if (!pil->is_eating && ft_get_time() > pil->bias && pil->id)
 				{
 					ft_print_status(ft_get_time() - pil->start, pil, " died\n");
 					pthread_mutex_unlock(pil->death);
+					pthread_mutex_unlock(((t_state *)arg)->exit);
+					return (NULL);
 				}
 				i++;
 			}
 		}
-		pthread_mutex_unlock(&state->exit);
+		pthread_mutex_unlock(((t_state *)arg)->exit);
 	}
 }
 
@@ -64,7 +64,7 @@ static void	*ft_count(void *arg)
 	flag = 1;
 	while (flag != 0 && state)
 	{
-		pthread_mutex_lock(&state->exit);
+		pthread_mutex_lock(state->exit);
 		i = 0;
 		flag = 0;
 		while (state->philos[i])
@@ -73,7 +73,7 @@ static void	*ft_count(void *arg)
 				flag = 1;
 			i++;
 		}
-		pthread_mutex_unlock(&state->exit);
+		pthread_mutex_unlock(state->exit);
 	}
 	pthread_mutex_unlock(state->philo_death);
 	return ((void *)0);
@@ -98,6 +98,7 @@ static int	ft_run_philo(t_state *state)
 		if (pthread_create(&pth, NULL, &ft_run, (void *)(state->philos[i])))
 			return (ft_error(3));
 		pthread_detach(pth);
+		usleep(1);
 		i++;
 	}
 	pthread_detach(pth);
@@ -116,7 +117,7 @@ int	main(int argc, char *argv[])
 		return (ft_free_state(&state));
 	pthread_mutex_lock(state.philo_death);
 	pthread_mutex_unlock(state.philo_death);
-	pthread_mutex_lock(&state.exit);
+	pthread_mutex_lock(state.exit);
 	ft_free_state(&state);
 	return (0);
 }

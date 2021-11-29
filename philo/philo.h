@@ -50,7 +50,7 @@ typedef struct s_state
 	pthread_mutex_t	**forks;
 	pthread_mutex_t	*print;
 	pthread_mutex_t	*philo_death;
-	pthread_mutex_t	exit;
+	pthread_mutex_t	*exit;
 
 }				t_state;
 

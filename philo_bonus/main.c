@@ -56,7 +56,8 @@ static void	*ft_count(void *arg)
 		sem_wait(state->eat_count);
 		i++;
 	}
-	sem_post(state->philo_death);
+	if (state->num_eat != 0)
+		sem_post(state->philo_death);
 	return ((void *)0);
 }
 
